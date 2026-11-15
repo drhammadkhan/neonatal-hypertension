@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Neonatal BP Check</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--fg:#1d2330;--mut:#5d6677;--line:#d9dde5;--acc:#1f5fbf;
+--ok:#1b7a3d;--okbg:#e4f4ea;--warn:#8a5a00;--warnbg:#fff1d6;--bad:#a4262c;--badbg:#fde6e7;--lowbg:#e6eefb;--low:#1f4a99}
+@media (prefers-color-scheme:dark){:root{--bg:#12151b;--card:#1b1f27;--fg:#e8ebf1;--mut:#9aa3b2;--line:#323946;--acc:#6ea2f5;
+--ok:#7fd69c;--okbg:#17301f;--warn:#f0c060;--warnbg:#3a2d10;--bad:#ff9a9f;--badbg:#3d1c1e;--lowbg:#1a2a46;--low:#9dbdf5}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.45 system-ui,sans-serif}
+main{max-width:720px;margin:0 auto;padding:16px}
+h1{font-size:1.4rem;margin:.2em 0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;margin:12px 0}
+label{display:block;font-weight:600;font-size:.9rem;margin-bottom:4px}
+input{width:100%;font-size:1.1rem;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+.hint{color:var(--mut);font-size:.85rem}
+.pma{font-size:1.05rem}
+table{width:100%;border-collapse:collapse;margin-top:8px}
+th,td{padding:8px;text-align:left;border-bottom:1px solid var(--line)}
+th{font-size:.8rem;color:var(--mut)}
+.pill{display:inline-block;padding:3px 10px;border-radius:999px;font-weight:700;font-size:.85rem}
+.p-low{background:var(--lowbg);color:var(--low)}.p-ok{background:var(--okbg);color:var(--ok)}
+.p-warn{background:var(--warnbg);color:var(--warn)}.p-bad{background:var(--badbg);color:var(--bad)}
+.err{color:var(--bad);font-weight:600}
+.note{border-left:4px solid var(--warn);background:var(--warnbg);padding:8px 12px;border-radius:6px;font-size:.85rem}
+footer{font-size:.8rem;color:var(--mut)}
+</style>
+</head>
+<body>
+<main>
+<h1>Neonatal blood pressure check</h1>
+<p class="hint">Compares a BP reading with percentiles by postconceptional age (26–44 weeks).</p>
+
+<div class="card">
+  <div class="grid">
+    <div><label for="ga">Gestational age at birth (weeks)</label><input id="ga" type="number" inputmode="decimal" min="22" max="44" step="0.1"></div>
+    <div><label for="pnd">Postnatal age (days)</label><input id="pnd" type="number" inputmode="numeric" min="0" max="200" step="1"></div>
+    <div><label for="pma">…or PMA directly (weeks)</label><input id="pma" type="number" inputmode="decimal" min="26" max="44" step="0.1"></div>
+  </div>
+  <p class="pma" id="pmaOut"></p>
+  <div class="grid">
+    <div><label for="sbp">Systolic (mmHg)</label><input id="sbp" type="number" inputmode="numeric" min="20" max="200"></div>
+    <div><label for="dbp">Diastolic (mmHg)</label><input id="dbp" type="number" inputmode="numeric" min="10" max="150"></div>
+    <div><label for="map">MAP (optional)</label><input id="map" type="number" inputmode="numeric" min="10" max="150"></div>
+  </div>
+  <p class="hint">If MAP is blank it is calculated as DBP + (SBP − DBP)/3.</p>
+</div>
+
+<div class="card" id="result" hidden>
+  <div id="msg"></div>
+  <table>
+    <thead><tr><th></th><th>Value</th><th>50th</th><th>95th</th><th>99th</th><th>Band</th></tr></thead>
+    <tbody id="rows"></tbody>
+  </table>
+  <p class="hint" id="interp"></p>
+</div>
+
+<div class="note" id="note"></div>
+
+<footer>
+<p>Reference data: Dionne JM et al. <em>Pediatr Nephrol</em> 2012;27:17–32 (Erratum: 27:159–60). Values between the tabulated 2-week steps are linearly interpolated. Decision-support only; not a substitute for clinical judgement, and the source's own caveats on measurement method and cuff size apply.</p>
+</footer>
+</main>
+
+<script>
+// [PMA weeks]: {SBP:[p50,p95,p99], DBP:[...], MAP:[...]}
+const DATA = {
+ 26:{SBP:[55,72,77],DBP:[30,50,56],MAP:[38,57,63]},
+ 28:{SBP:[60,75,80],DBP:[38,50,54],MAP:[45,58,63]},
+ 30:{SBP:[65,80,85],DBP:[40,55,60],MAP:[48,65,68]},
+ 32:{SBP:[68,83,88],DBP:[40,55,60],MAP:[48,62,69]},
+ 34:{SBP:[70,85,90],DBP:[40,55,60],MAP:[50,65,70]},
+ // Source image prints 99th MAP = 71 (< 95th = 72); SBP 92 / DBP 70 implies ~77. Corrected, flagged in UI. VERIFY vs original.
+ 36:{SBP:[72,87,92],DBP:[50,65,70],MAP:[57,72,77]},
+ 38:{SBP:[77,92,97],DBP:[50,65,70],MAP:[59,74,79]},
+ 40:{SBP:[80,95,100],DBP:[50,65,70],MAP:[60,75,80]},
+ 42:{SBP:[85,98,102],DBP:[50,65,70],MAP:[62,76,81]},
+ 44:{SBP:[88,105,110],DBP:[50,68,73],MAP:[63,80,85]}
+};
+const WEEKS = Object.keys(DATA).map(Number).sort((a,b)=>a-b);
+document.getElementById('note').textContent =
+ "Data check: the source table lists the 36-week 99th-percentile MAP as 71 (below the 95th, 72). This app uses 77 (consistent with SBP 92/DBP 70). Please verify against the original paper/erratum.";
+
+function thresholds(pma, key){
+  const lo = [...WEEKS].reverse().find(w=>w<=pma), hi = WEEKS.find(w=>w>=pma);
+  const a = DATA[lo][key], b = DATA[hi][key];
+  const t = lo===hi ? 0 : (pma-lo)/(hi-lo);
+  return a.map((v,i)=>v+(b[i]-v)*t);
+}
+function band(v,[p50,p95,p99]){
+  if(v>=p99) return ['≥ 99th','p-bad'];
+  if(v>=p95) return ['95th–99th','p-warn'];
+  if(v>=p50) return ['50th–95th','p-ok'];
+  return ['< 50th','p-low'];
+}
+const $=id=>document.getElementById(id);
+function num(id){const v=parseFloat($(id).value);return isNaN(v)?null:v}
+
+function update(){
+  let pma = num('pma');
+  const ga=num('ga'), pnd=num('pnd');
+  if(pma===null && ga!==null && pnd!==null) pma = ga + pnd/7;
+  const out=$('pmaOut'), res=$('result');
+  res.hidden=true; out.className='pma'; out.textContent='';
+  if(pma===null){out.textContent='Enter GA + postnatal days, or PMA directly.';return}
+  out.textContent='Postconceptional age: '+pma.toFixed(1)+' weeks';
+  if(pma<26||pma>44){out.innerHTML+=' <span class="err">— outside the table range (26–44 weeks).</span>';return}
+  const sbp=num('sbp'), dbp=num('dbp'); let map=num('map');
+  if(sbp===null||dbp===null) return;
+  if(sbp<=dbp){out.innerHTML+='<br><span class="err">Systolic must be greater than diastolic.</span>';return}
+  const mapCalc = map===null; if(mapCalc) map = dbp+(sbp-dbp)/3;
+  const items=[['Systolic',sbp,'SBP'],['Diastolic',dbp,'DBP'],['MAP'+(mapCalc?' (calc.)':''),map,'MAP']];
+  let worst=0; const order={'p-low':0,'p-ok':0,'p-warn':1,'p-bad':2};
+  $('rows').innerHTML = items.map(([n,v,k])=>{
+    const th=thresholds(pma,k), [b,c]=band(v,th);
+    worst=Math.max(worst,order[c]);
+    return `<tr><td>${n}</td><td><b>${Math.round(v)}</b></td><td>${Math.round(th[0])}</td><td>${Math.round(th[1])}</td><td>${Math.round(th[2])}</td><td><span class="pill ${c}">${b}</span></td></tr>`;
+  }).join('');
+  $('msg').innerHTML = worst===2 ? '<span class="pill p-bad">At or above 99th percentile on at least one measure</span>'
+    : worst===1 ? '<span class="pill p-warn">Between 95th and 99th percentile on at least one measure</span>'
+    : '<span class="pill p-ok">Below 95th percentile</span>';
+  $('interp').textContent = WEEKS.includes(Math.round(pma*10)/10) ? '' : 'Thresholds interpolated between tabulated PMAs.';
+  res.hidden=false;
+}
+['ga','pnd','pma','sbp','dbp','map'].forEach(id=>$(id).addEventListener('input',update));
+update();
+</script>
+</body>
+</html>
