@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Neonatal blood pressure percentiles | Evelina Neonatal Data Group</title>
-<meta name="description" content="Evelina Neonatal Data Group tool: see where a newborn baby’s systolic, diastolic and mean blood pressure falls against the 50th, 95th and 99th percentiles by postconceptional age (Dionne 2012). Nothing you enter leaves your device.">
+<meta name="description" content="Evelina Neonatal Data Group tool: see where a newborn baby’s systolic, diastolic and mean blood pressure falls against the 50th, 95th and 99th percentiles by corrected gestational age (Dionne 2012). Nothing you enter leaves your device.">
 <meta name="theme-color" media="(prefers-color-scheme: light)" content="#f3eee4">
 <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1b2227">
 <script>
@@ -35,11 +35,11 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://drhammadkhan.github.io/neonatal-hypertension/">
 <meta property="og:title" content="Neonatal blood pressure percentiles | Evelina Neonatal Data Group">
-<meta property="og:description" content="See where a newborn baby’s blood pressure falls against the 50th, 95th and 99th percentiles by postconceptional age (Dionne 2012). Nothing you enter leaves your device.">
+<meta property="og:description" content="See where a newborn baby’s blood pressure falls against the 50th, 95th and 99th percentiles by corrected gestational age (Dionne 2012). Nothing you enter leaves your device.">
 <meta property="og:image" content="https://drhammadkhan.github.io/neonatal-hypertension/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Evelina Neonatal Data Group: blood pressure percentiles, 50th, 95th and 99th percentile lines by postconceptional age">
+<meta property="og:image:alt" content="Evelina Neonatal Data Group: blood pressure percentiles, 50th, 95th and 99th percentile lines by corrected gestational age">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://drhammadkhan.github.io/neonatal-hypertension/og-image.png">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -274,7 +274,7 @@
 
   <div class="kicker">Dionne 2012 &middot; neonatal hypertension</div>
   <h1>Blood pressure <em>percentiles</em></h1>
-  <p class="lede">Enter the baby&rsquo;s age and a blood pressure reading to see where the systolic, diastolic and mean pressure fall against the 50th, 95th and 99th percentiles for postconceptional age.</p>
+  <p class="lede">Enter the baby&rsquo;s age and a blood pressure reading to see where the systolic, diastolic and mean pressure fall against the 50th, 95th and 99th percentiles for corrected gestational age.</p>
 
   <main class="grid">
     <div class="stack">
@@ -284,7 +284,7 @@
           <span class="label" id="modeLabel">Enter age as</span>
           <div class="seg" role="radiogroup" aria-labelledby="modeLabel">
             <label><input type="radio" name="mode" value="ga" checked><span>Gestation + age</span></label>
-            <label><input type="radio" name="mode" value="pma"><span>PMA directly</span></label>
+            <label><input type="radio" name="mode" value="pma"><span>CGA directly</span></label>
           </div>
         </div>
         <div class="field" id="gaField">
@@ -299,14 +299,14 @@
           <div class="unit"><input id="pnd" type="number" inputmode="numeric" min="0" max="200" step="1"><span>days old</span></div>
         </div>
         <div class="field" id="pmaField" hidden>
-          <span class="label" id="pmaLabel">Postconceptional age</span>
+          <span class="label" id="pmaLabel">Corrected gestational age</span>
           <div class="row" role="group" aria-labelledby="pmaLabel">
-            <div class="unit"><input id="pmaw" type="number" inputmode="numeric" min="26" max="44" step="1" aria-label="Postconceptional age, weeks"><span>weeks</span></div>
-            <div class="unit"><input id="pmad" type="number" inputmode="numeric" min="0" max="6" step="1" aria-label="Postconceptional age, extra days"><span>+ days</span></div>
+            <div class="unit"><input id="pmaw" type="number" inputmode="numeric" min="26" max="44" step="1" aria-label="Corrected gestational age, weeks"><span>weeks</span></div>
+            <div class="unit"><input id="pmad" type="number" inputmode="numeric" min="0" max="6" step="1" aria-label="Corrected gestational age, extra days"><span>+ days</span></div>
           </div>
         </div>
         <div class="err" id="ageErr" role="alert"></div>
-        <p class="pma-line"><span>Postconceptional age</span><b id="pmaOut">&ndash;</b></p>
+        <p class="pma-line"><span>Corrected gestational age</span><b id="pmaOut">&ndash;</b></p>
       </section>
 
       <section class="card" aria-labelledby="bpH">
@@ -339,7 +339,7 @@
           <label><input type="radio" name="measure" value="MAP" checked><span>MAP</span></label>
         </div>
       </div>
-      <div class="chartwrap" id="chart" role="img" aria-label="Chart of blood pressure percentile lines by postconceptional age"></div>
+      <div class="chartwrap" id="chart" role="img" aria-label="Chart of blood pressure percentile lines by corrected gestational age"></div>
       <div class="legend" aria-hidden="true"><span><i class="l50"></i>50th</span><span><i class="l95"></i>95th</span><span><i class="l99"></i>99th</span><span><i class="dot"></i>Reading</span></div>
     </section>
   </main>
@@ -350,7 +350,7 @@
       <div>
         <div class="tablewrap">
           <table class="thr">
-            <thead><tr><th>PMA</th><th>Measure</th><th>50th</th><th>95th</th><th>99th</th></tr></thead>
+            <thead><tr><th>CGA</th><th>Measure</th><th>50th</th><th>95th</th><th>99th</th></tr></thead>
             <tbody id="tbody"></tbody>
           </table>
         </div>
@@ -360,7 +360,7 @@
     <details>
       <summary>How the result is worked out</summary>
       <div>
-        <p><b>Postconceptional age</b> is gestation at birth plus age in days, in weeks. The table covers 26 to 44 weeks; outside that range no result is given.</p>
+        <p><b>Corrected gestational age</b> is gestation at birth plus age in days, in weeks. The table covers 26 to 44 weeks; outside that range no result is given.</p>
         <p><b>Bands.</b> Below the 50th; 50th up to the 95th; 95th up to the 99th; at or above the 99th. A value equal to a percentile counts as being in the higher band. The overall result is the highest band reached by systolic, diastolic or mean pressure.</p>
         <p><b>Between table rows.</b> For ages between two tabulated rows the percentile values are interpolated in a straight line. For example at 35 weeks the 95th percentile MAP is halfway between the 34-week and 36-week values.</p>
       </div>
@@ -368,14 +368,14 @@
     <details>
       <summary>About this tool</summary>
       <div>
-        <p>Percentile values are from Dionne JM, Abitbol CL, Flynn JT. Hypertension in infancy: diagnosis, management and outcome. <i>Pediatr Nephrol</i> 2012;27:17&ndash;32 (erratum <i>Pediatr Nephrol</i> 2012;27:159&ndash;60), which gives blood pressure by postconceptional age for infants of 26 to 44 weeks. Plotting a reading and banding it are additions to the published table.</p>
+        <p>Percentile values are from Dionne JM, Abitbol CL, Flynn JT. Hypertension in infancy: diagnosis, management and outcome. <i>Pediatr Nephrol</i> 2012;27:17&ndash;32 (erratum <i>Pediatr Nephrol</i> 2012;27:159&ndash;60), which gives blood pressure by corrected gestational age for infants of 26 to 44 weeks. Plotting a reading and banding it are additions to the published table.</p>
         <p>Blood pressure depends on how it was measured, the cuff size and the baby&rsquo;s state. Use a method consistent with the source, and repeat a high reading before acting on it.</p>
         <p>Nothing you enter is sent anywhere.</p>
       </div>
     </details>
   </div>
 
-  <p class="notice" role="note"><strong>Intended purpose:</strong> shows published blood pressure percentiles for infants by postconceptional age, and where an entered reading falls against them, for reference. The treating clinician decides what to do. It supports, and does not replace, clinical judgement and current guidance.</p>
+  <p class="notice" role="note"><strong>Intended purpose:</strong> shows published blood pressure percentiles for infants by corrected gestational age, and where an entered reading falls against them, for reference. The treating clinician decides what to do. It supports, and does not replace, clinical judgement and current guidance.</p>
   <footer>
     <p>Based on Dionne et al., <i>Pediatr Nephrol</i> 2012;27:17&ndash;32.</p>
     <p class="back"><a href="https://drhammadkhan.github.io/evelina-neonatal-data-group/">&larr; All group tools</a></p>
@@ -384,7 +384,7 @@
 </div>
 
 <script>
-/* Percentiles by postconceptional age (weeks): [50th, 95th, 99th] in mmHg. Dionne 2012. */
+/* Percentiles by corrected gestational age (weeks): [50th, 95th, 99th] in mmHg. Dionne 2012. */
 const DATA = {
   26: { SBP: [55, 72, 77],  DBP: [30, 50, 56], MAP: [38, 57, 63] },
   28: { SBP: [60, 75, 80],  DBP: [38, 50, 54], MAP: [45, 58, 63] },
@@ -442,7 +442,7 @@ function getPma() {
     if (!err.length) pma = w + d / 7;
   }
   if (pma !== null && (pma < 26 || pma > 44)) {
-    err.push('Postconceptional age is ' + fmt(pma) + ' weeks. The table covers 26 to 44 weeks, so no result is shown.');
+    err.push('Corrected gestational age is ' + fmt(pma) + ' weeks. The table covers 26 to 44 weeks, so no result is shown.');
     pma = null;
   }
   return { pma, err };
@@ -465,7 +465,7 @@ function drawChart(pma, key, point) {
     svg.appendChild(el('text', { class: 'ch-tick', x: x(w), y: H - B + 18, 'text-anchor': 'middle' }, w));
   }
   svg.appendChild(el('line', { class: 'ch-axis', x1: L, x2: W - R, y1: H - B, y2: H - B }));
-  svg.appendChild(el('text', { class: 'ch-title', x: (L + W - R) / 2, y: H - 6, 'text-anchor': 'middle' }, 'POSTCONCEPTIONAL AGE (WEEKS)'));
+  svg.appendChild(el('text', { class: 'ch-title', x: (L + W - R) / 2, y: H - 6, 'text-anchor': 'middle' }, 'CORRECTED GESTATIONAL AGE (WEEKS)'));
   svg.appendChild(el('text', { class: 'ch-title', x: 0, y: 0, transform: 'translate(12 ' + ((T + H - B) / 2) + ') rotate(-90)', 'text-anchor': 'middle' }, 'mmHg'));
   const line = i => WEEKS.map((w, j) => (j ? 'L' : 'M') + x(w) + ' ' + y(DATA[w][key][i])).join('');
   const area = (i, edge) => line(i) + [...WEEKS].reverse().map(w => 'L' + x(w) + ' ' + y(edge === 'top' ? yMax : DATA[w][key][2])).join('') + 'Z';
@@ -480,7 +480,7 @@ function drawChart(pma, key, point) {
     svg.appendChild(el('circle', { class: 'ch-pt ' + BANDS[bandOf(point, th)].cls, cx: x(pma), cy: y(point), r: 7 }));
   }
   $('chart').replaceChildren(svg);
-  $('chart').setAttribute('aria-label', NAMES[key] + ' blood pressure percentile lines by postconceptional age, 26 to 44 weeks');
+  $('chart').setAttribute('aria-label', NAMES[key] + ' blood pressure percentile lines by corrected gestational age, 26 to 44 weeks');
 }
 
 function update() {
@@ -530,7 +530,7 @@ function update() {
     const hi = ['SBP', 'DBP', 'MAP'].filter(k => order.indexOf(bandOf(vals[k], thresholds(pma, k))) === worst).map(k => NAMES[k].toLowerCase());
     banner.innerHTML = '<b></b><div class="ctx"></div>' + (worst ? '<p></p>' : '');
     banner.querySelector('b').textContent = titles[bk];
-    banner.querySelector('.ctx').textContent = Math.round(sbp) + '/' + Math.round(dbp) + ' (' + Math.round(map) + ') mmHg at ' + fmt(pma) + ' weeks postconceptional age';
+    banner.querySelector('.ctx').textContent = Math.round(sbp) + '/' + Math.round(dbp) + ' (' + Math.round(map) + ') mmHg at ' + fmt(pma) + ' weeks corrected gestational age';
     if (worst) banner.querySelector('p').textContent = 'Reached by the ' + hi.join(', ') + ' pressure. Highest band across systolic, diastolic and mean.';
     banner.hidden = false; meas.hidden = false; empty.hidden = true;
     point = vals[key];
